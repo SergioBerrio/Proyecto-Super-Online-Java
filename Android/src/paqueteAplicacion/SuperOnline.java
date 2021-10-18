@@ -1,0 +1,174 @@
+package paqueteAplicacion;
+
+import java.io.IOException;
+import java.util.Scanner;
+
+public class SuperOnline {
+
+	static Scanner in = new Scanner(System.in);
+
+	public static void main(String[] args) throws IOException {
+					
+		int opcion = 1;
+
+		Inventario.crearDatabase();
+		Inventario.conectar();
+		Inventario.eliminarTablas();
+		Inventario.crearTablas();
+		
+		System.out.println("========================================================================");
+		System.out.println("=                 SISTEMA DE GESTION DE SUPER-ON-LINE                  =");
+		System.out.println("========================================================================");
+		System.out.println();
+		System.out.println();
+
+
+		while (opcion != 0) {
+			mostrarMenuInventario();
+			System.out.println("Opción? ");
+			opcion = leerOpcion(7); // hay 6 acciones principales sobre el inventario + terminar la aplicación 
+			switch(opcion) {
+			case 0:	System.out.println("Terminar la aplicación");
+					System.exit(0);
+			case 1: Inventario.cargarProductos(); 
+					pause();
+					break; // cargar productos
+			case 2: Inventario.mostrarProductos();
+					pause();
+					break; 	
+			case 3:     //actualizar la cantidad de un producto en almancén
+				Producto p;
+				while (opcion!=0) {
+					Inventario.mostrarProductos();
+					System.out.println("0 - Finalizar actualización del inventario");
+					System.out.println("Elige el número del producto a actualizar, tecla:x (/= 0):");
+					System.out.println("Opción? ");
+					opcion = leerOpcion(Inventario.tamano()+1); //se han mostrado todos los articulos (talla) + opcion de salida
+					if (opcion!=0) {
+						p = Inventario.getProducto(opcion);  //el mismo producto
+						System.out.println("Producto elegido: "+p.getNombre()+", existencias: "+p.getCantidad());
+						System.out.println("Elige la nueva cantidad:");
+						int cant = in.nextInt();
+						in.nextLine();
+						p.setCantidad(cant);   //actualiza el mismo producto del inventario
+												//NO ES NECESARIA LA ACTUALIZACIÓN DESDE INVENTARIO!!
+						Inventario.actualizarCantidad(p.getCodigo(), cant);
+						System.out.println("Producto actualizado: "+p.getNombre()+", Nueva cantidad en almacén: "+p.getCantidad());
+						System.out.println();
+						pause();
+					}
+				} opcion=1;
+				break;
+			case 4:
+				while (opcion!=0) {
+					Inventario.mostrarProductos();
+					System.out.println("0 - Finalizar eliminación del producto");
+					System.out.println("Elige el número del producto a eliminar, tecla:x (/= 0):");
+					System.out.println("Opción? ");
+					opcion = leerOpcion(Inventario.tamano()+1);
+					if (opcion!=0) {
+						p = Inventario.getProducto(opcion);
+						System.out.println("Producto elegido: "+p.getNombre());
+						Inventario.eliminarProducto(p.getCodigo());
+						System.out.println("Producto eliminado: "+p.getNombre());
+						System.out.println();
+						pause();
+					}
+				} opcion=1;
+				break;
+			case 5: 	//añadir un nuevo producto al almancén
+				while (opcion!=0) {
+					mostrarMenuAddNuevoProducto();
+					System.out.println("Opción? ");
+					opcion = leerOpcion(6); // 5 clases de productos y salida del menú
+					if (opcion!=0) {
+						Producto P = nuevoProducto(opcion);
+						Inventario.addNuevoProducto(P, opcion);
+						System.out.println("Producto añadido, número "+Inventario.tamano()+"\n");
+						Inventario.getProducto(Inventario.tamano()).imprimir(); //imprime el último producto incluido
+						System.out.println();						
+						System.out.println();
+						pause();
+					}
+				} opcion=1; break;
+			case 6: Inventario.mostrarProductosEnviables();
+					pause();
+					break; 	
+			case 7: Inventario.volcarProductos();
+					pause();
+					break;
+			}
+		}	
+	}
+
+	public static void mostrarMenuInventario() {// ver productos del super ordenados
+		System.out.println("====================================================================");
+		System.out.println("=            MENÚ PRINCIPAL - GESTIÓN DE INVENTARIO                =");
+		System.out.println("====================================================================");
+		System.out.println("            Tecla:1 - Cargar productos"); 
+		System.out.println("            Tecla:2 - Mostrar inventario");
+		System.out.println("            Tecla:3 - Actualizar existencias");
+		System.out.println("            Tecla:4 - Eliminar producto");
+		System.out.println("            Tecla:5 - Añadir nuevo producto");
+		System.out.println("            Tecla:6 - Mostrar productos enviables");
+		System.out.println("            Tecla:7 - Guardar inventario");
+		System.out.println("            Tecla:0 - Terminar");
+		System.out.println("====================================================================");
+	}
+
+	
+	public static void mostrarMenuAddNuevoProducto() {// ver productos y escoger uno
+		System.out.println("====================================================");
+		System.out.println("=   Elige el tipo de producto que quieres añadir:  =");
+		System.out.println("====================================================");
+		System.out.println("         Tecla:1 - Lácteo");
+		System.out.println("         Tecla:2 - Frutas u hortalizas");
+		System.out.println("         Tecla:3 - Bebidas");
+		System.out.println("         Tecla:4 - Herramientas");
+		System.out.println("         Tecla:5 - Otros");
+		System.out.println("         Tecla:0 - Cancelar");
+		System.out.println("====================================================");
+	}
+	
+	public static Producto nuevoProducto (int n) {		
+		Scanner es = new Scanner (System.in);
+		Producto P;
+		switch(n) {
+			case 1: P = new Lacteo(es);
+				break;
+			case 2: P = new FrutaHortaliza(es);
+				break;
+			case 3: P = new Bebida(es);
+				break;
+			case 4: P = new Herramienta(es);
+				break;
+			default: P = new Otros(es);
+				break;
+		}
+		return P;
+	}
+
+	private static void pause() {
+		System.out.println("Pulsa 0 para continuar...");
+		leerOpcion(1);
+	}
+
+	private static int leerOpcion(int max) { 
+		boolean terminar = false;
+		int n = 0;
+		while (!terminar) {
+			try {
+				n = in.nextInt();
+				in.nextLine();
+				if (n>=max || n<0) {
+					throw new Exception();
+				}
+				terminar = true;
+			} catch (Exception e) {
+				System.out.println("Opción incorrecta! Elije de nuevo");
+				in.nextLine();
+			}
+		}
+		return n;
+	}
+}

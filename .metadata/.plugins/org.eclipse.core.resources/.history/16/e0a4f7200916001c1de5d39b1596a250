@@ -1,0 +1,35 @@
+package paqueteAplicacion;
+
+import java.util.Scanner;
+
+public class Herramienta extends NoPerecedero implements Enviable {
+
+	private static double VALOR_IVA = 0.4;
+	
+	public Herramienta(int codigo, String nombre, double precio, int cantidad, double peso) {
+		super(codigo, nombre, precio, cantidad, peso);
+
+	}
+	
+	public Herramienta(Scanner in) {
+		super(in);
+	}
+	
+	public String volcar() {
+		return "Volcado";
+	}
+	
+	public void imprimir() {
+		super.imprimir();
+	}
+
+	@Override
+	public boolean envioFragil() {
+		return false;
+	}
+
+	@Override
+	public double tarifaEnvio() {
+		return 0;
+	}
+}

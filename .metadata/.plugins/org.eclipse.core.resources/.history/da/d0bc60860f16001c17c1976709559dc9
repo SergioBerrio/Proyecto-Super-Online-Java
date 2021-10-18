@@ -1,0 +1,44 @@
+package paqueteAplicacion;
+
+import java.util.Scanner;
+
+public class FrutaHortaliza extends Perecedero {
+
+	private String origen;
+	private double VALOR_IVA = 0.16;
+	
+	public FrutaHortaliza(int codigo, String nombre, double precio, int cantidad, double peso, String fecha, String origen, double VALOR_IVA) {
+		super(codigo, nombre, precio, cantidad, peso, fecha);
+
+	}
+	
+	public FrutaHortaliza(Scanner in) {
+		super(in);
+		System.out.println("Origen del producto:");
+		this.origen = in.nextLine();
+	}
+	
+	public String volcar() {
+		return "Volcado";
+	}
+	
+	public void imprimir() {
+		super.imprimir();
+		System.out.println("Origen del producto: " + origen);
+
+	}
+	
+	public double calcularPrecioEnvio() {
+		return super.getPrecio() + (super.getPrecio() * VALOR_IVA);
+	}
+	
+	@Override
+	public boolean envioFragil() {
+		return false;
+	}
+
+	@Override
+	public double tarifaEnvio() {
+		return 0;
+	}
+}

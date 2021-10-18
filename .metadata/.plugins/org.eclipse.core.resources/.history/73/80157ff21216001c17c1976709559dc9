@@ -1,0 +1,170 @@
+package paqueteAplicacion;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import sun.security.jca.GetInstance;
+
+public class Inventario {
+
+	private static int ultimoCodigo = 0;
+	private static int ficheroInventario;
+	private static ArrayList<Producto> ListaProductos;
+	
+	private Inventario() {
+		
+	}
+	
+	public static void initInventario() {
+		if(ListaProductos == null) {
+			ListaProductos = new ArrayList<Producto>();
+		}
+		if(ultimoCodigo < 0) {
+			ultimoCodigo = 0;
+		}
+		if(ficheroInventario < 0) {
+			ficheroInventario = 0;
+		}
+	}
+	
+	public static int getUltimoCodigo() {
+		return ultimoCodigo;
+	}
+	
+	public static void cargarProductos() throws IOException {
+		initInventario();
+		
+		File ficheroProductos = new File("C:/DATOS/productos.txt");
+		FileReader fichero = null;
+		BufferedReader br = null;
+		
+		try {
+			fichero = new FileReader(ficheroProductos);
+			br = new BufferedReader(fichero);
+			
+			String linea;
+			
+			System.out.println("[[Cargando productos en el sistema...]]");
+			
+			while((linea = br.readLine()) != null) {
+				String[] restos = linea.split(" ");
+				
+				for(int i = 0; i < restos.length; i++) {
+					
+					if(restos[restos.length-1].contains("FrutaHortaliza")) {
+						ListaProductos.add(new FrutaHortaliza(Integer.parseInt(restos[0]), restos[1], Double.parseDouble(restos[2]), Integer.parseInt(restos[3]), Double.parseDouble(restos[4]), restos[5], restos[6]));
+					
+					} else if(restos[restos.length-1].contains("Lacteo")) {
+						ListaProductos.add(new Lacteo(Integer.parseInt(restos[0]), restos[1], Double.parseDouble(restos[2]), Integer.parseInt(restos[3]), Double.parseDouble(restos[4]), restos[5], restos[6]));
+					
+					} else if(restos[restos.length-1].contains("Bebida")) {
+						ListaProductos.add(new Bebida(Integer.parseInt(restos[0]), restos[1], Double.parseDouble(restos[2]), Integer.parseInt(restos[3]), Double.parseDouble(restos[4]), restos[5], restos[6]));
+					
+					} else if(restos[restos.length-1].contains("Herramienta")) {
+						ListaProductos.add(new Herramienta(Integer.parseInt(restos[0]), restos[1], Double.parseDouble(restos[2]), Integer.parseInt(restos[3]), Double.parseDouble(restos[4])));
+					
+					} else if(restos[restos.length-1].contains("Otros")) {
+						ListaProductos.add(new Otros(Integer.parseInt(restos[0]), restos[1], Double.parseDouble(restos[2]), Integer.parseInt(restos[3]), Double.parseDouble(restos[4]), restos[5]));
+					}
+				}
+			}
+			
+			System.out.println("[[...Productos cargados en el inventario]]");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error en la lectura del archivo txt");
+		} finally {
+			fichero.close();
+		}
+	}
+	
+	public static void guardarProductos() {
+		System.out.println("**** Lista completa de los productos catalogados ****");
+		
+		
+	}
+	
+	public static void addNuevoProducto(Producto producto) {
+		if(ListaProductos == null) {
+			initInventario();
+		}
+		
+		ListaProductos.add(producto);
+		ultimoCodigo = producto.getCodigo();
+		
+	}
+	
+	public static void mostrarProductos() {
+		if(ListaProductos == null) {
+			System.out.println("La lista de productos está vacía");
+			
+		} else {
+			for (int i = 0; i < ListaProductos.size(); i++) {
+				if(ListaProductos.get(i) instanceof Perecedero) {
+					
+					if(ListaProductos.get(i) instanceof FrutaHortaliza) {
+						System.out.println("Nombre: " + ListaProductos.get(i).getNombre() + " Cantidad: " + ListaProductos.get(i).getCantidad() + " Precio: " + ListaProductos.get(i).getPrecio() + " (Producto perecedero: " + ((Perecedero) ListaProductos.get(i)).getFechaCad() + " Fruta de origen: " + ((FutaHoratliza) ListaProductos.get(i)).getFechaCad());
+					
+					} else if(ListaProductos.get(i) instanceof Lacteo) {
+						System.out.println("Nombre: " + ListaProductos.get(i).getNombre() + " Cantidad: " + ListaProductos.get(i).getCantidad() + " Precio: " + ListaProductos.get(i).getPrecio() + " (Producto perecedero: " + ((Perecedero) ListaProductos.get(i)).getFechaCad() + " Producto lácteo: " + ((Lacteo) ListaProductos.get(i)).getLote());
+					
+					} else if(ListaProductos.get(i) instanceof Bebida) {
+						System.out.println("Nombre: " + ListaProductos.get(i).getNombre() + " Cantidad: " + ListaProductos.get(i).getCantidad() + " Precio: " + ListaProductos.get(i).getPrecio() + " (Producto perecedero: " + ((Perecedero) ListaProductos.get(i)).getFechaCad() + " Bebida de graduación: " + ((Bebida) ListaProductos.get(i).getGraduacion());
+					}
+					
+				} else if (ListaProductos.get(i) instanceof NoPerecedero) {
+					
+					if(ListaProductos.get(i) instanceof Herramienta) {
+						System.out.println("Nombre: " + ListaProductos.get(i).getNombre() + " Cantidad: " + ListaProductos.get(i).getCantidad() + " Precio: " + ListaProductos.get(i).getPrecio() + " (Producto no perecedero: " + ((Perecedero) ListaProductos.get(i)) + " Herramienta");
+					
+					} else if(ListaProductos.get(i) instanceof Otros) {
+						System.out.println("Nombre: " + ListaProductos.get(i).getNombre() + " Cantidad: " + ListaProductos.get(i).getCantidad() + " Precio: " + ListaProductos.get(i).getPrecio() + " (Producto no perecedero: " + ((Perecedero) ListaProductos.get(i)) + " Producto de categoría " + ((Otros) ListaProductos.get(i)));
+					
+					}
+				}
+			}
+		}
+	}
+	
+	public static Producto getProducto(int codigo) {
+		for (int i = 0; i < ListaProductos.size(); i++) {
+			if(ListaProductos.get(i).getCodigo() == codigo) {
+				return ListaProductos.get(i);
+			}
+		}
+		return null;
+	}
+	
+	public static void actualizarCantidad(int codigo, double cantidad) {
+		for (int i = 0; i < ListaProductos.size(); i++) {
+			if(ListaProductos.get(i).getCodigo() == codigo) {
+				ListaProductos.get(i).setCantidad(codigo);
+			}
+		}
+	}
+	
+	public static int tamano() {
+		return ListaProductos.size();
+	}
+	
+	public static void mostrarProductosEnviables() {
+		
+		
+	}
+	
+	public static void eliminarProducto(int codigo) {
+		for (int i = 0; i < ListaProductos.size(); i++) {
+			if(ListaProductos.get(i).getCodigo() == codigo) {
+				ListaProductos.remove(codigo);
+			}
+		}
+	}
+	
+	public static String volcarProductos() {
+		return "Volcado";
+	}
+	
+}
